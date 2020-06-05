@@ -1,6 +1,7 @@
-<?php
+  <?php
 
-include 'header.php';
+include('header.php');
+echo "<body>";
 
   date_default_timezone_set('Europe/Paris'); //heure française
 
@@ -15,28 +16,19 @@ include 'header.php';
     $count++;
   } //création de 10 fichiers identiques automatiquement
 
-  // if (!file_exists("newfile.txt")) {
-  // $myfile = fopen("newfile.txt", "w") or die("Unable to open file!"); // Si on utilise fopen avec un fichier qui n'existe pas, le fichier va être créé dans le même répertoire que le script qui lance la commande, si on uilise l'option "w" ou "a"
-  // $txt = "John Doe\n";
-  // fwrite($myfile, $txt);
-  // $txt = "Jane Doe\n";
-  // fwrite($myfile, $txt);
-  // fclose($myfile);
-  // } //[ne m'apporte rien pour l'instant]
 
   $url = getcwd(); //récupère le chemin du repertoire courant
   echo $url; //affiche le contenu de la variable $url
   $contents = scandir($url); //liste les éléments (dossiers et fichiers) du répertoire
-  //echo $contents; //affiche le contenu de la variable $contents - [ne fonctionne pas car la fonction scandir renvoie un tableau]
 ?>
 
 <table class="table table-sm table-hover">
   <thead>
     <tr>
-      <th scope="col">Nom</th>
-      <th scope="col">Taille</th>
-      <th scope="col">Type</th>
-      <th scope="col">Date modification</th>
+      <th width="33%" scope="col">Nom</th>
+      <th width="33%" scope="col">Modifié le</th>
+      <th width="17%" scope="col">Type</th>
+      <th width="17%" scope="col">Taille (bytes)</th>
     </tr>
   </thead>
   <tbody>
@@ -49,20 +41,24 @@ include 'header.php';
     $date = date(("d-m-Y H:i:s"),filemtime($item)); //initialise des variables (taille, type, date) qui récupère des informations pour chaque élément du tableau
 
     if (is_dir($item) == true) {
-      echo "<br<tr><td><i class=\"far fa-folder\"></i><a href=\"$item\">$item</a><td>$size</td><td>$type</td><td>$date</td></tr>"; //affiche les variables pour les répertoires, dossiers
+      echo "<tr><td><i class=\"far fa-folder\"></i><a href=\"$item\">$item</a><td>$date</td><td>$type</td><td>$size</td></tr>"; //affiche les variables pour les répertoires, dossiers
     }
-    elseif (exif_imagetype($item)) {
-      echo "<br<tr><td><i class=\"far fa-image\"></i><a href=\"$item\">$item</a><td>$size</td><td>$type</td><td>$date</td></tr>"; //affiche les variables pour les images
+    elseif (isset($type) && in_array($type, array("image/png", "image/jpeg", "image/jpg", "image/gif"))) {
+    //echo 'This is an image file'
+    echo "<br<tr><td><i class=\"far fa-image\"></i><a href=\"$item\">$item</a><td>$date</td><td>$type</td><td>$size</td></tr>"; //affiche les variables pour les images
     }
     elseif (is_file($item) == true) {
-      echo "<br<tr><td><i class=\"far fa-file\"></i><a href=\"$item\">$item</a><td>$size</td><td>$type</td><td>$date</td></tr>"; //affiche les variables pour les fichiers
+      echo "<br<tr><td><i class=\"far fa-file\"></i><a href=\"$item\">$item</a><td>$date</td><td>$type</td><td>$size</td></tr>"; //affiche les variables pour les fichiers
     }
     else {
-      echo "<br<tr><td><i class=\"far fa-question-circle\"></i><a href=\"$item\">$item</a><td>$size</td><td>$type</td><td>$date</td></tr>"; //affiche les variables pour les autres docs
+      echo "<br<tr><td><i class=\"far fa-question-circle\"></i><a href=\"$item\">$item</a><td>$date</td><td>$type</td><td>$size</td></tr>"; //affiche les variables pour les autres docs
     }
   } //fin foreach
+
+
 
 ?>
 
 </tbody>
 </table>
+</body>
