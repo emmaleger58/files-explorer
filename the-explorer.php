@@ -15,6 +15,22 @@ if (!isset($_POST["cwd"])) {
   $cwd = $_POST["cwd"];
 }
 
+if (!isset($_POST["sort"])) {
+  $sort_by = "name";
+} else {
+  $sort_by = $_POST["sort"];
+}
+
+if (!isset($_POST["sort_order"])) {
+  $sort_order = "up";
+} else {
+  if ($_POST["sort_order" === "up"]) {
+  $sort_order = "down";
+  } else {
+    $sort_order = "up";
+  }
+}
+
 chdir($cwd);
 
 $all_contents = scandir($cwd);
@@ -32,7 +48,7 @@ foreach ($all_contents as $item) {
       $contents_type[$item] = "Folder";
     } else {
       $contents_size[$item] = filesize($cwd . DIRECTORY_SEPARATOR . $item);
-      if (strpos($item, ".")) {
+      if (strpos(substr($item), ".")) {
         $type = explode(".", $item);
         $contents_type[$item] = end($type);
       }
@@ -41,6 +57,37 @@ foreach ($all_contents as $item) {
       }
     }
   }
+}
+
+if ($sort_by === "date") {
+  $sorted_contents = $contents_date;
+  asort($sorted_contents);
+} elseif ($sort_by === "size") {
+  $sorted_contents = $contents_size;
+  asort($sorted_contents);
+} elseif ($sort_by === "type") {
+  $sorted_contents = $contents_type;
+  natcasesort($sorted_contents);
+} else {
+  $sorted_contents = $contents;
+  natcasesort($sorted_contents);
+}
+
+if ($sort_order === "down") {
+  $keys = [];
+  $values = [];
+  $reversed = [];
+
+  foreach ($sorted_contents as $key => $value) {
+    array_push($keys, $key);
+    array_push($values, $value);
+  }
+
+  for ($i=count($keys)-1; $i >= 0 ; $i--) {
+    $reversed[$keys[$i]] = $values[$i];
+  }
+
+  $sorted_contents = &$reversed;
 }
 
 foreach ($all_contents as $item) {
@@ -55,7 +102,11 @@ $cwd_road = "";
 $is_home = false;
 
 echo "<form id='changecwd' method='POST'></form>";
-echo "<form id='sort' method='POST'></form>";
+
+echo "<form id='sort' method='POST'>";
+  echo "<input type='hidden' name='cwd' value='$cwd'>";
+  echo "<input type='hidden' name='sort_order' value='$sort_order'>";
+echo "</form>";
 
 echo "<div class='container'>";
   echo "<div class='row'>";
@@ -79,28 +130,28 @@ echo "</div>";
   echo "<div class='container'>";
     echo "<div class='breadcrumb'>";
       echo "<div class='w-25'>";
-        echo "<button type='submit' form='changecwd' name ='sort' value=''>";
+        echo "<button type='submit' form='changecwd' name ='sort' value='name'>";
           echo "Name";
         echo "</button>";
       echo "</div>";
       echo "<div class='w-25'>";
-        echo "<button type='submit' form='changecwd' name ='sort' value=''>";
+        echo "<button type='submit' form='changecwd' name ='sort' value='date'>";
           echo "Date";
         echo "</button>";
       echo "</div>";
       echo "<div class='w-25'>";
-        echo "<button type='submit' form='changecwd' name ='sort' value=''>";
+        echo "<button type='submit' form='changecwd' name ='sort' value='size'>";
           echo "Size";
         echo "</button>";
       echo "</div>";
       echo "<div class='w-25'>";
-        echo "<button type='submit' form='changecwd' name ='sort' value=''>";
+        echo "<button type='submit' form='changecwd' name ='sort' value='type'>";
           echo "Type";
         echo "</button>";
     echo "</div>";
   echo "</div>";
 
-foreach ($contents as $name) {
+foreach ($sorted_contents as $name => $value) {
   echo "<div class='breadcrumb'>";
     echo "<div class='w-25'>";
       echo "<button type='submit' form='changecwd' name ='cwd' value='". $cwd . DIRECTORY_SEPARATOR . $name ."'>";
